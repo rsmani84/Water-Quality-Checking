@@ -282,32 +282,45 @@ elif menu == "Water Quality Test":
     col1, col2 = st.columns(2)
 
     with col1:
-        ph = st.number_input("pH", min_value=0.0, max_value=14.0, value=7.0, step=0.1)
-        turbidity = st.number_input("Turbidity (NTU)", min_value=0.0, value=2.0, step=0.1)
-        hardness = st.number_input("Hardness (mg/L)", min_value=0.0, value=150.0, step=1.0)
+        ph = st.text_input("pH", placeholder="Enter pH value (e.g., 7.2)")
+        turbidity = st.text_input("Turbidity (NTU)", placeholder="Enter turbidity value (e.g., 2.5)")
+        hardness = st.text_input("Hardness (mg/L)", placeholder="Enter hardness value (e.g., 150)")
 
     with col2:
-        tds = st.number_input("TDS (mg/L)", min_value=0.0, value=300.0, step=1.0)
-        conductivity = st.number_input("Conductivity (µS/cm)", min_value=0.0, value=450.0, step=1.0)
+        tds = st.text_input("TDS (mg/L)", placeholder="Enter TDS value (e.g., 300)")
+        conductivity = st.text_input("Conductivity (µS/cm)", placeholder="Enter conductivity value (e.g., 450)")
 
     if st.button("Analyze Water Quality"):
-        results, total_score, overall, status_color, alert = evaluate_water_quality(
-            ph, turbidity, hardness, tds, conductivity
-        )
+        if not all([ph, turbidity, hardness, tds, conductivity]):
+            st.warning("⚠️ Please enter all water quality parameters before analysis.")
+        else:
+            try:
+                ph = float(ph)
+                turbidity = float(turbidity)
+                hardness = float(hardness)
+                tds = float(tds)
+                conductivity = float(conductivity)
 
-        st.session_state["results"] = results
-        st.session_state["total_score"] = total_score
-        st.session_state["overall"] = overall
-        st.session_state["alert"] = alert
-        st.session_state["inputs"] = {
-            "pH": ph,
-            "Turbidity": turbidity,
-            "Hardness": hardness,
-            "TDS": tds,
-            "Conductivity": conductivity
-        }
+                results, total_score, overall, status_color, alert = evaluate_water_quality(
+                    ph, turbidity, hardness, tds, conductivity
+                )
 
-        st.success("Analysis completed successfully!")
+                st.session_state["results"] = results
+                st.session_state["total_score"] = total_score
+                st.session_state["overall"] = overall
+                st.session_state["alert"] = alert
+                st.session_state["inputs"] = {
+                    "pH": ph,
+                    "Turbidity": turbidity,
+                    "Hardness": hardness,
+                    "TDS": tds,
+                    "Conductivity": conductivity
+                }
+
+                st.success("Analysis completed successfully!")
+
+            except ValueError:
+                st.error("❌ Please enter valid numeric values only.")
 
     if "results" in st.session_state:
         results = st.session_state["results"]
